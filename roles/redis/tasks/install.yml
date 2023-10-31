@@ -1,0 +1,34 @@
+- name: 创建redis数据目录
+  file: path={{ redis_data_dir }} state=directory
+
+- name: 创建redis目录
+  file: path={{ redis_log_dir }} state=directory
+
+- name: 复制redis包到远程主机
+  copy: src={{ item }} dest={{ source_dir }}
+  with_fileglob:
+    - /data/ansible/playbook/roles/redis/files/*
+
+- name: 解压包
+  unarchive:
+    src: /tmp/{{ redis_version }}.tar.gz
+    dest: "{{ source_dir }}"
+    copy: no
+
+- name: 安装redis
+  shell: cd {{ source_dir }}/{{ redis_version }} && make
+
+- name: 创建二进制目录配置文件目录
+  shell: cd {{ var_dir }} && mkdir -pv bin conf
+
+- name: 拷贝文件到bin和conf下配置文件
+  shell: cp {{ source_dir }}/{{ redis_version }}/src/redis-* {{ var_dir }}/bin && rm -rf {{ var_dir }}/bin/*.c && rm -rf {{ var_dir }}/bin/*.o
+
+- name: 拷贝编译完成的redis.conf文件到conf下
+  template: src=redis.conf.j2 dest={{ var_dir }}/conf/redis.conf
+
+- name: 启动redis
+  shell: "{{ var_dir }}/bin/redis-server {{ var_dir }}/conf/redis.conf"
+
+- name: 删除redis解压包
+  file: path={{source_dir}}/{{redis_version}} state=absent

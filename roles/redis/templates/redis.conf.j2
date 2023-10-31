@@ -1,0 +1,10 @@
+bind 127.0.0.1
+port {{ redis_port }}
+requirepass {{ redis_password }}  
+daemonize yes
+protected-mode no
+appendonly yes
+appendfilename appendonly-master.aof
+appendfsync everysec
+logfile "{{ redis_log_dir }}/redis.log"
+dir {{ redis_data_dir }}

@@ -1,0 +1,11 @@
+---
+- name: 停止redis服务
+  shell: "{{ var_dir }}/bin/redis-cli -a {{ redis_password }} -p {{ redis_port }} shutdown"
+
+- name: 删除相关目录
+  shell: |
+    port={{ redis_port }}
+    state=$(netstat -tunpl | grep ${port})
+    if [ -z ${state} ]; then 
+      /bin/rm -rf /data/redis
+    fi
