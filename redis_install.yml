@@ -1,5 +1,5 @@
 ---
-- hosts: ms all
+- hosts: ms
   remote_user: root
   gather_facts: false
   roles:
